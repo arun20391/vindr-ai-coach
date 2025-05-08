@@ -17,6 +17,7 @@ prompt = f"""Generate a 4-week fitness plan for a {level} individual.
 Details:
 Name: {name}
 Goal: {goal}
+Injuries: {injuries}
 Weight: {weight} kg
 Height: {height} cm
 Age: {age}
