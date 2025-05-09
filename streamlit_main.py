@@ -19,18 +19,32 @@ with st.form("fitness_form"):
     submitted = st.form_submit_button("Generate Plan")
 
 if submitted:
+    # Build modular blocks
+    goal_block = f"Goal: {goal}"
+    level_block = f"Fitness Level: {level}"
+    profile_block = f"Age: {age}, Weight: {weight} kg, Height: {height} cm"
+    injury_block = f"Injuries: {injuries if injuries else 'None'}"
+
+    # Combine into a clean, structured prompt
     prompt = f"""
-You are a certified fitness coach. Create a personalized 4-week fitness plan for:
+You are a certified fitness coach.
 
-Name: {name}
-Goal: {goal}
-Level: {level}
-Age: {age}
-Weight: {weight} kg
-Height: {height} cm
+Create a personalized 4-week fitness plan that includes:
+- Warm-up routines
+- Main workouts
+- Rest/recovery days
+- At least 2 days of strength training for runners
+- At least 2 days of cardio for strength-focused goals
 
-Include clear weekly breakdowns and rest days. Include atleast 2 days of strength in running plans. Include atleast 2 days of cardio in strength focussed plans.
+{goal_block}
+{level_block}
+{profile_block}
+{injury_block}
+
+Use a friendly and motivating tone. Keep it simple unless the user asks otherwise.
 """
+
+    # GPT request
     with st.spinner("Generating your plan..."):
         response = openai.chat.completions.create(
             model="gpt-4o",
