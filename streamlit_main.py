@@ -54,7 +54,7 @@ Create a personalized 4-week fitness plan with the following rules and structure
 
 2. For beginners:
    - Cardio workouts in Weeks 1 and 2 should alternate between jogging and walking at equal intervals.
-   - Total cardio duration should start at 15–20 minutes on Day 1 and gradually increase to 30 minutes by the end of Week 2.
+   - Total cardio duration should start at 15-20 minutes on Day 1 and gradually increase to 30 minutes by the end of Week 2.
 
 3. If the user has any injury:
    - Avoid high-impact or aggravating exercises.
