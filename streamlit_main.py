@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-st.title("🏃‍♂️ Vindr AI Fitness Coach")
+st.title("Vindr AI Fitness Coach")
 
 # Initialize session state for plan and prompt
 if "plan" not in st.session_state:
