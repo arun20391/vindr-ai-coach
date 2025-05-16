@@ -97,7 +97,7 @@ if st.button("Generate Plan"):
         )
         st.session_state.plan = response.choices[0].message.content
         st.session_state.prompt = prompt
-        st.success("✅ Plan generated!")
+        st.success("Plan generated!")
 
 # Show plan if available
 if st.session_state.plan:
@@ -108,13 +108,13 @@ if st.session_state.plan:
     col1, col2 = st.columns(2)
 
     with col1:
-        like = st.button("👍 Yes, I liked it")
+        like = st.button("Yes, I liked it")
     with col2:
-        dislike = st.button("👎 Not quite right")
+        dislike = st.button("Not quite right")
 
     if dislike:
         st.markdown("You can try regenerating the plan with the same inputs:")
-        if st.button("🔄 Regenerate Plan"):
+        if st.button("Regenerate Plan"):
             with st.spinner("Regenerating your plan..."):
                 retry_response = openai.chat.completions.create(
                     model="gpt-4o",
@@ -122,5 +122,5 @@ if st.session_state.plan:
                     temperature=0.9,
                 )
                 st.session_state.plan = retry_response.choices[0].message.content
-                st.success("✅ Regenerated plan!")
+                st.success("Regenerated plan!")
                 st.markdown(st.session_state.plan)
