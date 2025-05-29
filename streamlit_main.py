@@ -2,6 +2,9 @@ import streamlit as st
 import openai
 import os
 from dotenv import load_dotenv
+from weasyprint import HTML
+import tempfile
+
 
 # Load environment variables
 load_dotenv()
@@ -124,3 +127,39 @@ if st.session_state.plan:
                 st.session_state.plan = retry_response.choices[0].message.content
                 st.success("Regenerated plan!")
                 st.markdown(st.session_state.plan)
+
+# Offer PDF download
+if st.button("Download this plan as PDF"):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
+        html = f"""
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        padding: 20px;
+                    }}
+                    h2 {{
+                        color: #2E8B57;
+                    }}
+                    strong {{
+                        color: #333;
+                    }}
+                </style>
+            </head>
+            <body>
+                {st.session_state.plan.replace('\n', '<br>')}
+            </body>
+        </html>
+        """
+        HTML(string=html).write_pdf(tmpfile.name)
+        with open(tmpfile.name, "rb") as f:
+            st.download_button(
+                label="Click to download PDF",
+                data=f.read(),
+                file_name="vindr_training_plan.pdf",
+                mime="application/pdf"
+            )
+

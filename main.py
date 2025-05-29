@@ -29,5 +29,5 @@ response = client.chat.completions.create(
     temperature=0.7,
 )
 
-print("\n🏋️ Your Personalized Fitness Plan:\n")
+print("\n Your Personalized Fitness Plan:\n")
 print(response.choices[0].message.content.strip())
