@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from weasyprint import HTML
 import tempfile
+st.set_page_config(page_title="Vindr | AI Fitness Coach", page_icon="ZeeResizer.png")
 
 
 # Load environment variables
