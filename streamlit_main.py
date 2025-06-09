@@ -2,7 +2,6 @@ import streamlit as st
 import openai
 import os
 from dotenv import load_dotenv
-import tempfile
 st.set_page_config(page_title="Vindr | AI Fitness Coach", page_icon="ZeeResizer.png")
 
 
