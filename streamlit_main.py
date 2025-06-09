@@ -2,7 +2,6 @@ import streamlit as st
 import openai
 import os
 from dotenv import load_dotenv
-from weasyprint import HTML
 import tempfile
 st.set_page_config(page_title="Vindr | AI Fitness Coach", page_icon="ZeeResizer.png")
 
@@ -128,7 +127,7 @@ if st.session_state.plan:
                 st.session_state.plan = retry_response.choices[0].message.content
                 st.success("Regenerated plan!")
                 st.markdown(st.session_state.plan)
-
+'''
 # Offer PDF download
 if st.button("Download this plan as PDF"):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
@@ -163,4 +162,4 @@ if st.button("Download this plan as PDF"):
                 file_name="vindr_training_plan.pdf",
                 mime="application/pdf"
             )
-
+'''
