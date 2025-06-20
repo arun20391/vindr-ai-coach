@@ -4,23 +4,218 @@ import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
+# SEO-optimized page config
 st.set_page_config(
-    page_title="Vindr - AI Fitness Coach | Personalized Training Plans",
+    page_title="Vindr - AI Fitness Coach | Free Personalized Workout Plans & Half Marathon Training Plans",
     page_icon="ZeeResizer.png",
     layout="centered",
     initial_sidebar_state="collapsed",
     menu_items={
         'Get Help': 'https://vindr.in',
         'Report a bug': None,
-        'About': "Vindr AI Fitness Coach - Get personalized 4-week training plans powered by AI"
+        'About': "Vindr AI Fitness Coach - Get personalized 4-week training plans powered by AI. Free fitness plan generator for running, strength training, and weight loss goals."
     }
 )
+
+# SEO Meta Tags and Open Graph
+st.markdown("""
+<meta name="description" content="Free AI-powered fitness coach that creates personalized 4-week workout plans. Get custom training programs for running, strength building, weight loss, and general fitness. Start your fitness journey today with Vindr AI Coach.">
+<meta name="keywords" content="AI fitness coach, personalized workout plans, free fitness plans, training programs, running plans, strength training, weight loss workouts, 4-week fitness plan, half marathon training plans">
+<meta name="author" content="Arun Subramanian">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vindr.in/">
+<meta property="og:title" content="Vindr - AI Fitness Coach | Free Personalized Workout Plans">
+<meta property="og:description" content="Get your personalized 4-week fitness plan in minutes. AI-powered training programs for running, strength, and weight loss. 100% free.">
+<meta property="og:image" content="https://vindr.in/ZeeResizer.png">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://vindr.in/">
+<meta property="twitter:title" content="Vindr - AI Fitness Coach | Free Personalized Workout Plans">
+<meta property="twitter:description" content="Get your personalized 4-week fitness plan in minutes. AI-powered training programs for running, strength, and weight loss. 100% free.">
+<meta property="twitter:image" content="https://vindr.in/ZeeResizer.png">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Vindr AI Fitness Coach",
+  "description": "AI-powered fitness coach that creates personalized 4-week workout plans for running, strength training, and weight loss",
+  "url": "https://vindr.in",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Arun Subramanian"
+  }
+}
+</script>
+""", unsafe_allow_html=True)
+
+# Custom CSS for better styling
+st.markdown("""
+<style>
+    .main-header {
+        text-align: center;
+        padding: 1rem 0 2rem 0;
+        border-bottom: 2px solid #f0f2f6;
+        margin-bottom: 2rem;
+    }
+    
+    .section-header {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 2rem 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .stTextInput > div > div > input {
+        background-color: #f9fafb;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+    
+    .stSelectbox > div > div > div {
+        background-color: #f9fafb;
+        border-radius: 8px;
+    }
+    
+    .stNumberInput > div > div > input {
+        background-color: #f9fafb;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+    
+    .stButton > button {
+        background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        transition: all 0.2s ease;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+    
+    .plan-container {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .feedback-section {
+        background-color: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    /* Make tables more readable */
+    .stMarkdown table {
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.95rem;
+    }
+    
+    .stMarkdown th {
+        background-color: #f3f4f6;
+        padding: 0.75rem;
+        text-align: left;
+        border: 1px solid #d1d5db;
+        font-weight: 600;
+    }
+    
+    .stMarkdown td {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        vertical-align: top;
+    }
+    /* Mobile-responsive tables */
+    @media (max-width: 768px) {
+    .main-header {
+        padding: 0.5rem 0 1rem 0;
+        margin-bottom: 1rem;
+    }
+    .stMarkdown table {
+        font-size: 0.75rem;
+        width: 100%;
+        table-layout: fixed;
+    }
+    
+    .stMarkdown th,
+    .stMarkdown td {
+        padding: 0.4rem 0.2rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .stMarkdown th:first-child,
+    .stMarkdown td:first-child {
+        width: 15%;
+    }
+    
+    .stMarkdown th:nth-child(2),
+    .stMarkdown td:nth-child(2) {
+        width: 20%;
+    }
+    
+    .stMarkdown th:nth-child(3),
+    .stMarkdown td:nth-child(3) {
+        width: 65%;
+    }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+        .stMarkdown table {
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stMarkdown table {
+            font-size: 0.7rem;
+        }
+        
+        .stMarkdown th,
+        .stMarkdown td {
+            padding: 0.3rem 0.2rem;
+        }
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Load environment variables
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-st.title("Vindr AI Fitness Coach")
+# Enhanced main header with SEO-friendly content
+st.markdown('<div class="main-header">', unsafe_allow_html=True)
+st.title("🏃‍♂️ Vindr AI Fitness Coach")
+st.markdown("**Get your personalized 4-week training plan in minutes**")
+st.markdown("*Free AI-powered workout plans for running, weight loss, strength training, and half marathon training*")
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Initialize session state for plan and prompt
 if "plan" not in st.session_state:
