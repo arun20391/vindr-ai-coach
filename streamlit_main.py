@@ -502,7 +502,7 @@ def show_progress_tracking():
                     ["✅ Completed as planned", "🔄 Did something different", "⏭️ No activity today"],
                     key="today_completion"
                 )
-                
+
                 actual_activity = None
                 if completion_type == "🔄 Did something different":
                     actual_activity = st.text_area(
@@ -511,7 +511,12 @@ def show_progress_tracking():
                         key="today_activity"
                     )
                 
-                col_log, col_cancel = st.columns([1, 1] if st.session_state.get("edit_today", False) else [1, 0])
+                # Fixed column logic to avoid [1, 0] error
+                if st.session_state.get("edit_today", False):
+                    col_log, col_cancel = st.columns([1, 1])
+                else:
+                    col_log = st.container()
+                    col_cancel = None
                 
                 with col_log:
                     if st.button("Log Today's Activity", use_container_width=True):
@@ -531,7 +536,7 @@ def show_progress_tracking():
                         st.session_state["edit_today"] = False
                         st.rerun()
                 
-                if st.session_state.get("edit_today", False):
+                if col_cancel is not None:
                     with col_cancel:
                         if st.button("Cancel", use_container_width=True):
                             st.session_state["edit_today"] = False
@@ -586,6 +591,7 @@ def show_progress_tracking():
                     )
                 
                 col_log_prev, col_cancel_prev = st.columns(2)
+                print(f"DEBUG: Created columns at line 593")     # ADD THIS LINE
                 
                 with col_log_prev:
                     if st.button("Log This Activity", use_container_width=True, key="log_prev_submit"):

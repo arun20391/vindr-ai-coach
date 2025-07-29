@@ -197,14 +197,27 @@ class UserDatabase:
             # Analyze the activity text to determine green vs yellow
             activity_lower = actual_activity.lower()
             
-            # Green criteria (full effort)
+            # Green criteria (full effort) - IMPROVED
             green_keywords = [
-                "gym", "workout", "training", "run", "jog", "bike", "cycle", "swim", 
-                "strength", "weights", "cardio", "yoga", "pilates", "hiit", "crossfit"
+                "gym", "workout", "training", "run", "ran", "jog", "jogged", "bike", "biked", "cycle", "cycled", "swim", "swam",
+                "strength", "weights", "cardio", "yoga", "pilates", "hiit", "crossfit", "lift", "lifted", "squat", "squats",
+                "pushup", "pushups", "push-up", "push-ups", "burpee", "burpees", "plank", "planks"
             ]
             
+            # Check for distance indicators (km, miles, meters)
+            distance_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:km|k|mile|miles|meter|meters|m)', activity_lower)
+            if distance_match:
+                distance = float(distance_match.group(1))
+                # If distance >= 3km or >= 2 miles, it's green
+                if ('km' in activity_lower or 'k' in activity_lower) and distance >= 3:
+                    return "green"
+                elif ('mile' in activity_lower) and distance >= 2:
+                    return "green"
+                elif ('meter' in activity_lower or 'm' in activity_lower) and distance >= 3000:
+                    return "green"
+            
             # Check for duration >= 30 minutes
-            duration_match = re.search(r'(\d+)\s*(?:min|minute|hour|hr)', activity_lower)
+            duration_match = re.search(r'(\d+)\s*(?:min|minute|minutes|hour|hours|hr)', activity_lower)
             if duration_match:
                 duration = int(duration_match.group(1))
                 if "hour" in activity_lower or "hr" in activity_lower:
@@ -213,7 +226,7 @@ class UserDatabase:
                     return "green"
             
             # Check for high rep counts (>=50)
-            rep_matches = re.findall(r'(\d+)\s*(?:pushup|squat|burpee|rep|time)', activity_lower)
+            rep_matches = re.findall(r'(\d+)\s*(?:pushup|squat|burpee|rep|reps|time)', activity_lower)
             if rep_matches:
                 total_reps = sum(int(rep) for rep in rep_matches)
                 if total_reps >= 50:
