@@ -1,7 +1,8 @@
 import sqlite3
 import bcrypt
-from datetime import datetime
+from datetime import datetime, date
 import os
+import re
 
 class UserDatabase:
     def __init__(self, db_path="users.db"):
@@ -41,18 +42,21 @@ class UserDatabase:
             )
         ''')
         
-        # User progress table
+        # Workout completions table - NEW
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS user_progress (
+            CREATE TABLE IF NOT EXISTS workout_completions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 plan_id INTEGER NOT NULL,
                 workout_date DATE NOT NULL,
-                completed BOOLEAN DEFAULT FALSE,
-                notes TEXT,
-                completed_at TIMESTAMP,
+                planned_workout TEXT NOT NULL,
+                completion_type TEXT NOT NULL,
+                actual_activity TEXT,
+                status_color TEXT NOT NULL,
+                completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id),
-                FOREIGN KEY (plan_id) REFERENCES user_plans (id)
+                FOREIGN KEY (plan_id) REFERENCES user_plans (id),
+                UNIQUE(user_id, plan_id, workout_date)
             )
         ''')
         
@@ -179,3 +183,127 @@ class UserDatabase:
         conn.close()
         
         return plan[0] if plan else None
+    
+    def determine_status_color(self, completion_type, actual_activity=None):
+        """Determine the status color based on completion type and activity"""
+        if completion_type == "completed_planned":
+            return "green"
+        elif completion_type == "no_activity":
+            return "red"
+        elif completion_type == "different_activity":
+            if not actual_activity:
+                return "red"
+            
+            # Analyze the activity text to determine green vs yellow
+            activity_lower = actual_activity.lower()
+            
+            # Green criteria (full effort)
+            green_keywords = [
+                "gym", "workout", "training", "run", "jog", "bike", "cycle", "swim", 
+                "strength", "weights", "cardio", "yoga", "pilates", "hiit", "crossfit"
+            ]
+            
+            # Check for duration >= 30 minutes
+            duration_match = re.search(r'(\d+)\s*(?:min|minute|hour|hr)', activity_lower)
+            if duration_match:
+                duration = int(duration_match.group(1))
+                if "hour" in activity_lower or "hr" in activity_lower:
+                    duration *= 60
+                if duration >= 30:
+                    return "green"
+            
+            # Check for high rep counts (>=50)
+            rep_matches = re.findall(r'(\d+)\s*(?:pushup|squat|burpee|rep|time)', activity_lower)
+            if rep_matches:
+                total_reps = sum(int(rep) for rep in rep_matches)
+                if total_reps >= 50:
+                    return "green"
+            
+            # Check for green keywords
+            if any(keyword in activity_lower for keyword in green_keywords):
+                return "green"
+            
+            # Check for walking with sufficient duration
+            if "walk" in activity_lower:
+                if duration_match and int(duration_match.group(1)) >= 25:
+                    return "green"
+                else:
+                    return "yellow"
+            
+            # Default to yellow for light activity
+            return "yellow"
+        
+        return "red"
+    
+    def log_workout_completion(self, user_id, plan_id, workout_date, planned_workout, completion_type, actual_activity=None):
+        """Log a workout completion"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        status_color = self.determine_status_color(completion_type, actual_activity)
+        
+        # Use REPLACE to handle duplicates (user changing their mind about same day)
+        cursor.execute('''
+            REPLACE INTO workout_completions 
+            (user_id, plan_id, workout_date, planned_workout, completion_type, actual_activity, status_color)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (user_id, plan_id, workout_date, planned_workout, completion_type, actual_activity, status_color))
+        
+        conn.commit()
+        conn.close()
+        
+        return status_color
+    
+    def get_workout_history(self, user_id, plan_id=None):
+        """Get workout completion history for a user"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        if plan_id:
+            cursor.execute('''
+                SELECT workout_date, planned_workout, completion_type, actual_activity, status_color
+                FROM workout_completions 
+                WHERE user_id = ? AND plan_id = ?
+                ORDER BY workout_date DESC
+            ''', (user_id, plan_id))
+        else:
+            cursor.execute('''
+                SELECT workout_date, planned_workout, completion_type, actual_activity, status_color
+                FROM workout_completions 
+                WHERE user_id = ?
+                ORDER BY workout_date DESC
+            ''', (user_id,))
+        
+        completions = cursor.fetchall()
+        conn.close()
+        
+        return [{
+            'date': completion[0],
+            'planned_workout': completion[1],
+            'completion_type': completion[2],
+            'actual_activity': completion[3],
+            'status_color': completion[4]
+        } for completion in completions]
+    
+    def get_monthly_stats(self, user_id, year, month):
+        """Get monthly stats for color-coded calendar"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT status_color, COUNT(*) as count
+            FROM workout_completions 
+            WHERE user_id = ? 
+            AND strftime('%Y', workout_date) = ? 
+            AND strftime('%m', workout_date) = ?
+            GROUP BY status_color
+        ''', (user_id, str(year), str(month).zfill(2)))
+        
+        stats = cursor.fetchall()
+        conn.close()
+        
+        result = {'green': 0, 'yellow': 0, 'red': 0}
+        for stat in stats:
+            result[stat[0]] = stat[1]
+        
+        return result
